@@ -35,35 +35,46 @@ public class Game {
     public Error move(Coordinate... coordinates) {
         Error error = null;
         List<Coordinate> removedCoordinates = new ArrayList<Coordinate>();
-        List<Coordinate> enemiesThatCanBeEaten = new ArrayList<>();
+        List<Coordinate> removablePiecesWithEnemies = new ArrayList<Coordinate>();
         int pair = 0;
         do {
             error = this.isCorrectPairMove(pair, coordinates);
             if (error == null) {
-                enemiesThatCanBeEaten = this.board.getEnemiesThatCanBeEaten(this.turn.getColor());
+                removablePiecesWithEnemies = this.board.getRemovablePiecesWithEnemies(
+                    this.turn.getColor(),
+                    this.getCoordinatesWithActualColor()
+                );
                 this.pairMove(removedCoordinates, pair, coordinates);
                 pair++;
             }
         } while (pair < coordinates.length - 1 && error == null);
         error = this.isCorrectGlobalMove(error, removedCoordinates, coordinates);
-        if (removedCoordinates.size() > 0)
-            enemiesThatCanBeEaten = this.board.getEnemiesThatCanBeEaten(this.turn.getColor());
-        if (enemiesThatCanBeEaten.size() > 0 && error == null)
-            this.removeRandomPieceIfEnemyIsNotEaten(coordinates[0], coordinates[coordinates.length - 1], enemiesThatCanBeEaten.toArray(new Coordinate[enemiesThatCanBeEaten.size()]));
-        if (error == null)
+        if (error == null) {
+            if (removedCoordinates.size() > 0) {
+                removablePiecesWithEnemies = this.board.getRemovablePiecesWithEnemies(
+                    this.turn.getColor(),
+                    this.getCoordinatesWithActualColor()
+                );
+                this.removeRandomPieceIfEnemyIsNotEaten(removablePiecesWithEnemies);
+            } else if (removablePiecesWithEnemies.size() > 0)
+                this.removePieceIfEnemyIsNotEaten(coordinates);
             this.turn.change();
-        else
+        } else {
             this.unMovesUntilPair(removedCoordinates, pair, coordinates);
+        }
         return error;
     }
 
-    private void removeRandomPieceIfEnemyIsNotEaten(Coordinate origin, Coordinate lastTarget, Coordinate... coordinates) {
-        int random = (int) (Math.random() * coordinates.length);
-        if (coordinates[random].equals(origin))
-            this.board.remove(lastTarget);
-        else
-            this.board.remove(coordinates[random]);
+    private void removeRandomPieceIfEnemyIsNotEaten(List<Coordinate> removablePiecesWithEnemies) {
+        final int random = (int) (Math.random() * removablePiecesWithEnemies.size());
+        if (!removablePiecesWithEnemies.isEmpty())
+            this.board.remove(removablePiecesWithEnemies.get(random));
     }
+
+    private void removePieceIfEnemyIsNotEaten(Coordinate[] coordinates) {
+        this.board.remove(coordinates[coordinates.length - 1]);
+    }
+
 
     private Error isCorrectPairMove(int pair, Coordinate... coordinates) {
         assert coordinates[pair] != null;

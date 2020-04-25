@@ -6,6 +6,14 @@ import java.util.List;
 
 class Board {
 
+    private static final int ONE_UNIT_DISTANCE = 1;
+
+    private static final int TWO_UNITS_DISTANCE = 2;
+
+    private static final int MAX_LIMIT = Coordinate.getDimension() - 2;
+
+    private static final int MIN_LIMIT = 1;
+
     private Piece[][] pieces;
 
     Board() {
@@ -68,40 +76,32 @@ class Board {
         return this.getPiece(coordinate) == null;
     }
 
-    List<Coordinate> getEnemiesThatCanBeEaten(Color turn) {
-        List<Coordinate> enemiesThatCanBeEaten = new ArrayList<Coordinate>();
-        for (int i = 0; i < Coordinate.getDimension(); i++)
-            for (int j = 0; j < Coordinate.getDimension(); j++)
-                if (this.pieces[i][j] != null)
-                    if (this.pieces[i][j].color.equals(turn)) {
-                        this.checkDiagonals(enemiesThatCanBeEaten, turn, new Coordinate(i, j));
-                    }
-        return enemiesThatCanBeEaten;
+    List<Coordinate> getRemovablePiecesWithEnemies(Color color, List<Coordinate> coordinates) {
+        List<Coordinate> removablePiecesWithEnemies = new ArrayList<>();
+        for (Coordinate coordinate : coordinates)
+            this.addRemovablePiecesWithEnemies(removablePiecesWithEnemies, color, coordinate);
+        return removablePiecesWithEnemies;
     }
 
-    private void checkDiagonals(List<Coordinate> enemiesThatCanBeEaten, Color color, Coordinate coordinate) {
-        final int row = coordinate.getRow();
-        final int column = coordinate.getColumn();
-        if (row != 7 && column != 7 && row != 6 && column != 6
-            && this.getPiece(new Coordinate(row + 1, column + 1)) != null
-            && this.getPiece(new Coordinate(row + 2, column + 2)) == null
-            && !this.getPiece(new Coordinate(row + 1, column + 1)).getColor().equals(color))
-            enemiesThatCanBeEaten.add(coordinate);
-        if (row != 0 && column != 7 && row != 1 && column != 6
-            && this.getPiece(new Coordinate(row - 1, column + 1)) != null
-            && this.getPiece(new Coordinate(row - 2, column + 2)) == null
-            && !this.getPiece(new Coordinate(row - 1, column + 1)).getColor().equals(color))
-            enemiesThatCanBeEaten.add(coordinate);
-        if (row != 7 && column != 0 && row != 6 && column != 1
-            && this.getPiece(new Coordinate(row + 1, column - 1)) != null
-            && this.getPiece(new Coordinate(row + 2, column - 2)) == null
-            && !this.getPiece(new Coordinate(row + 1, column - 1)).getColor().equals(color))
-            enemiesThatCanBeEaten.add(coordinate);
-        if (row != 0 && column != 0 && row != 1 && column != 1
-            && this.getPiece(new Coordinate(row - 1, column - 1)) != null
-            && this.getPiece(new Coordinate(row - 2, column - 2)) == null
-            && !this.getPiece(new Coordinate(row - 1, column - 1)).getColor().equals(color))
-            enemiesThatCanBeEaten.add(coordinate);
+    private void addRemovablePiecesWithEnemies(List<Coordinate> removablePiecesWithEnemies, Color color, Coordinate coordinate) {
+        if (color.equals(Color.WHITE) && coordinate.getRow() > MIN_LIMIT) {
+            if (coordinate.getColumn() < MAX_LIMIT && checkEnemyExistence(coordinate, Direction.SE))
+                removablePiecesWithEnemies.add(coordinate);
+            if (coordinate.getColumn() > MIN_LIMIT && checkEnemyExistence(coordinate, Direction.SW))
+                removablePiecesWithEnemies.add(coordinate);
+        }
+        if (color.equals(Color.BLACK) && coordinate.getRow() < MAX_LIMIT) {
+            if (coordinate.getColumn() > MIN_LIMIT && checkEnemyExistence(coordinate, Direction.NW))
+                removablePiecesWithEnemies.add(coordinate);
+            if (coordinate.getColumn() < MAX_LIMIT && checkEnemyExistence(coordinate, Direction.NE))
+                removablePiecesWithEnemies.add(coordinate);
+        }
+    }
+
+    private boolean checkEnemyExistence(Coordinate coordinate, Direction direction) {
+        return this.getPiece(coordinate.getDiagonalCoordinate(direction, ONE_UNIT_DISTANCE)) != null
+            && !this.getColor(coordinate.getDiagonalCoordinate(direction, ONE_UNIT_DISTANCE)).equals(this.getColor(coordinate))
+            && this.getPiece(coordinate.getDiagonalCoordinate(direction, TWO_UNITS_DISTANCE)) == null;
     }
 
     @Override

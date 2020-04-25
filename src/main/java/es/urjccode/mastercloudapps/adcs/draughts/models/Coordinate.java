@@ -5,11 +5,11 @@ import java.util.List;
 
 public class Coordinate {
 
-    private int row;
-    private int column;
     private static final int LOWER_LIMIT = 0;
     private static final int UPPER_LIMIT = 7;
     private static final int DIMENSION = UPPER_LIMIT + 1;
+    private int row;
+    private int column;
 
     public Coordinate(int row, int column) {
         this.row = row;
@@ -29,6 +29,10 @@ public class Coordinate {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public static int getDimension() {
+        return Coordinate.DIMENSION;
     }
 
     private boolean isWithIn() {
@@ -110,8 +114,8 @@ public class Coordinate {
         return this.column;
     }
 
-    public static int getDimension() {
-        return Coordinate.DIMENSION;
+    Coordinate getDiagonalCoordinate(Direction direction, int distance) {
+        return this.plus(direction.getDistanceCoordinate(distance));
     }
 
     @Override
@@ -139,9 +143,6 @@ public class Coordinate {
         Coordinate other = (Coordinate) obj;
         if (column != other.column)
             return false;
-        if (row != other.row)
-            return false;
-        return true;
+        return row == other.row;
     }
-
 }
