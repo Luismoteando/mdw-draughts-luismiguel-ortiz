@@ -35,20 +35,34 @@ public class Game {
     public Error move(Coordinate... coordinates) {
         Error error = null;
         List<Coordinate> removedCoordinates = new ArrayList<Coordinate>();
+        List<Coordinate> enemiesThatCanBeEaten = new ArrayList<>();
         int pair = 0;
         do {
             error = this.isCorrectPairMove(pair, coordinates);
             if (error == null) {
+                enemiesThatCanBeEaten = this.board.getEnemiesThatCanBeEaten(this.turn.getColor());
                 this.pairMove(removedCoordinates, pair, coordinates);
                 pair++;
             }
         } while (pair < coordinates.length - 1 && error == null);
         error = this.isCorrectGlobalMove(error, removedCoordinates, coordinates);
+        if (removedCoordinates.size() > 0)
+            enemiesThatCanBeEaten = this.board.getEnemiesThatCanBeEaten(this.turn.getColor());
+        if (enemiesThatCanBeEaten.size() > 0 && error == null)
+            this.removeRandomPieceIfEnemyIsNotEaten(coordinates[0], coordinates[coordinates.length - 1], enemiesThatCanBeEaten.toArray(new Coordinate[enemiesThatCanBeEaten.size()]));
         if (error == null)
             this.turn.change();
         else
             this.unMovesUntilPair(removedCoordinates, pair, coordinates);
         return error;
+    }
+
+    private void removeRandomPieceIfEnemyIsNotEaten(Coordinate origin, Coordinate lastTarget, Coordinate... coordinates) {
+        int random = (int) (Math.random() * coordinates.length);
+        if (coordinates[random].equals(origin))
+            this.board.remove(lastTarget);
+        else
+            this.board.remove(coordinates[random]);
     }
 
     private Error isCorrectPairMove(int pair, Coordinate... coordinates) {
@@ -191,11 +205,8 @@ public class Game {
         } else if (!board.equals(other.board))
             return false;
         if (turn == null) {
-            if (other.turn != null)
-                return false;
-        } else if (!turn.equals(other.turn))
-            return false;
-        return true;
+            return other.turn == null;
+        } else return turn.equals(other.turn);
     }
 
 }

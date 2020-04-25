@@ -68,6 +68,42 @@ class Board {
         return this.getPiece(coordinate) == null;
     }
 
+    List<Coordinate> getEnemiesThatCanBeEaten(Color turn) {
+        List<Coordinate> enemiesThatCanBeEaten = new ArrayList<Coordinate>();
+        for (int i = 0; i < Coordinate.getDimension(); i++)
+            for (int j = 0; j < Coordinate.getDimension(); j++)
+                if (this.pieces[i][j] != null)
+                    if (this.pieces[i][j].color.equals(turn)) {
+                        this.checkDiagonals(enemiesThatCanBeEaten, turn, new Coordinate(i, j));
+                    }
+        return enemiesThatCanBeEaten;
+    }
+
+    private void checkDiagonals(List<Coordinate> enemiesThatCanBeEaten, Color color, Coordinate coordinate) {
+        final int row = coordinate.getRow();
+        final int column = coordinate.getColumn();
+        if (row != 7 && column != 7 && row != 6 && column != 6
+            && this.getPiece(new Coordinate(row + 1, column + 1)) != null
+            && this.getPiece(new Coordinate(row + 2, column + 2)) == null
+            && !this.getPiece(new Coordinate(row + 1, column + 1)).getColor().equals(color))
+            enemiesThatCanBeEaten.add(coordinate);
+        if (row != 0 && column != 7 && row != 1 && column != 6
+            && this.getPiece(new Coordinate(row - 1, column + 1)) != null
+            && this.getPiece(new Coordinate(row - 2, column + 2)) == null
+            && !this.getPiece(new Coordinate(row - 1, column + 1)).getColor().equals(color))
+            enemiesThatCanBeEaten.add(coordinate);
+        if (row != 7 && column != 0 && row != 6 && column != 1
+            && this.getPiece(new Coordinate(row + 1, column - 1)) != null
+            && this.getPiece(new Coordinate(row + 2, column - 2)) == null
+            && !this.getPiece(new Coordinate(row + 1, column - 1)).getColor().equals(color))
+            enemiesThatCanBeEaten.add(coordinate);
+        if (row != 0 && column != 0 && row != 1 && column != 1
+            && this.getPiece(new Coordinate(row - 1, column - 1)) != null
+            && this.getPiece(new Coordinate(row - 2, column - 2)) == null
+            && !this.getPiece(new Coordinate(row - 1, column - 1)).getColor().equals(color))
+            enemiesThatCanBeEaten.add(coordinate);
+    }
+
     @Override
     public String toString() {
         String string = "";
@@ -115,9 +151,6 @@ class Board {
         if (getClass() != obj.getClass())
             return false;
         Board other = (Board) obj;
-        if (!Arrays.deepEquals(pieces, other.pieces))
-            return false;
-        return true;
+        return Arrays.deepEquals(pieces, other.pieces);
     }
-
 }
