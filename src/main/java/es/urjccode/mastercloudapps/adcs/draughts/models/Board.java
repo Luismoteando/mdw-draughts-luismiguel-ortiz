@@ -45,23 +45,13 @@ class Board {
     }
 
     List<Piece> getBetweenDiagonalPieces(Coordinate origin, Coordinate target) {
-        List<Piece> betweenDiagonalPieces = new ArrayList<Piece>();
+        List<Piece> betweenDiagonalPieces = new ArrayList<>();
         if (origin.isOnDiagonal(target))
             for (Coordinate coordinate : origin.getBetweenDiagonalCoordinates(target)) {
                 Piece piece = this.getPiece(coordinate);
                 if (piece != null)
                     betweenDiagonalPieces.add(piece);
             }
-        return betweenDiagonalPieces;
-    }
-
-    int getAmountBetweenDiagonalPieces(Coordinate origin, Coordinate target) {
-        if (!origin.isOnDiagonal(target))
-            return 0;
-        int betweenDiagonalPieces = 0;
-        for (Coordinate coordinate : origin.getBetweenDiagonalCoordinates(target))
-            if (this.getPiece(coordinate) != null)
-                betweenDiagonalPieces++;
         return betweenDiagonalPieces;
     }
 
@@ -106,32 +96,32 @@ class Board {
 
     @Override
     public String toString() {
-        String string = "";
-        string += this.toStringHorizontalNumbers();
+        StringBuilder string = new StringBuilder();
+        string.append(this.toStringHorizontalNumbers());
         for (int i = 0; i < Coordinate.getDimension(); i++)
-            string += this.toStringHorizontalPiecesWithNumbers(i);
-        string += this.toStringHorizontalNumbers();
-        return string;
+            string.append(this.toStringHorizontalPiecesWithNumbers(i));
+        string.append(this.toStringHorizontalNumbers());
+        return string.toString();
     }
 
     private String toStringHorizontalNumbers() {
-        String string = " ";
+        StringBuilder string = new StringBuilder(" ");
         for (int j = 0; j < Coordinate.getDimension(); j++)
-            string += j;
+            string.append(j);
         return string + "\n";
     }
 
     private String toStringHorizontalPiecesWithNumbers(int row) {
-        String string = " " + row;
+        StringBuilder string = new StringBuilder(" " + row);
         for (int j = 0; j < Coordinate.getDimension(); j++) {
             Piece piece = this.getPiece(new Coordinate(row, j));
             if (piece == null)
-                string += " ";
+                string.append(" ");
             else {
-                string += piece;
+                string.append(piece);
             }
         }
-        return string + row + "\n";
+        return string.toString() + row + "\n";
     }
 
     @Override

@@ -33,9 +33,9 @@ public class Game {
     }
 
     public Error move(Coordinate... coordinates) {
-        Error error = null;
-        List<Coordinate> removedCoordinates = new ArrayList<Coordinate>();
-        List<Coordinate> removablePiecesWithEnemies = new ArrayList<Coordinate>();
+        Error error;
+        List<Coordinate> removedCoordinates = new ArrayList<>();
+        List<Coordinate> removablePiecesWithEnemies = new ArrayList<>();
         int pair = 0;
         do {
             error = this.isCorrectPairMove(pair, coordinates);
@@ -134,7 +134,7 @@ public class Game {
     }
 
     private List<Coordinate> getCoordinatesWithActualColor() {
-        List<Coordinate> coordinates = new ArrayList<Coordinate>();
+        List<Coordinate> coordinates = new ArrayList<>();
         for (int i = 0; i < this.getDimension(); i++) {
             for (int j = 0; j < this.getDimension(); j++) {
                 Coordinate coordinate = new Coordinate(i, j);
