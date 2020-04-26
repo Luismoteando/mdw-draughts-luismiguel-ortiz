@@ -79,14 +79,14 @@ public class GameViewTest {
         verify(console, times(90)).write(argument.capture());
         List<String> rows = Arrays.asList(
             " 12345678",
-            "1 B      ",
+            "1 b      ",
             "2        ",
             "3        ",
             "4        ",
             "5        ",
             "6        ",
             "7        ",
-            "8N       ",
+            "8n       ",
             " 12345678");
         assertEquals(marshall(rows), marshall(argument.getAllValues()));
     }
