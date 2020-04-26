@@ -35,21 +35,46 @@ public class Game {
     public Error move(Coordinate... coordinates) {
         Error error = null;
         List<Coordinate> removedCoordinates = new ArrayList<Coordinate>();
+        List<Coordinate> removablePiecesWithEnemies = new ArrayList<Coordinate>();
         int pair = 0;
         do {
             error = this.isCorrectPairMove(pair, coordinates);
             if (error == null) {
+                removablePiecesWithEnemies = this.board.getRemovablePiecesWithEnemies(
+                    this.turn.getColor(),
+                    this.getCoordinatesWithActualColor()
+                );
                 this.pairMove(removedCoordinates, pair, coordinates);
                 pair++;
             }
         } while (pair < coordinates.length - 1 && error == null);
         error = this.isCorrectGlobalMove(error, removedCoordinates, coordinates);
-        if (error == null)
+        if (error == null) {
+            if (removedCoordinates.size() > 0) {
+                removablePiecesWithEnemies = this.board.getRemovablePiecesWithEnemies(
+                    this.turn.getColor(),
+                    this.getCoordinatesWithActualColor()
+                );
+                this.removeRandomPieceIfEnemyIsNotEaten(removablePiecesWithEnemies);
+            } else if (removablePiecesWithEnemies.size() > 0)
+                this.removePieceIfEnemyIsNotEaten(coordinates);
             this.turn.change();
-        else
+        } else {
             this.unMovesUntilPair(removedCoordinates, pair, coordinates);
+        }
         return error;
     }
+
+    private void removeRandomPieceIfEnemyIsNotEaten(List<Coordinate> removablePiecesWithEnemies) {
+        final int random = (int) (Math.random() * removablePiecesWithEnemies.size());
+        if (!removablePiecesWithEnemies.isEmpty())
+            this.board.remove(removablePiecesWithEnemies.get(random));
+    }
+
+    private void removePieceIfEnemyIsNotEaten(Coordinate[] coordinates) {
+        this.board.remove(coordinates[coordinates.length - 1]);
+    }
+
 
     private Error isCorrectPairMove(int pair, Coordinate... coordinates) {
         assert coordinates[pair] != null;
@@ -191,11 +216,8 @@ public class Game {
         } else if (!board.equals(other.board))
             return false;
         if (turn == null) {
-            if (other.turn != null)
-                return false;
-        } else if (!turn.equals(other.turn))
-            return false;
-        return true;
+            return other.turn == null;
+        } else return turn.equals(other.turn);
     }
 
 }

@@ -6,6 +6,14 @@ import java.util.List;
 
 class Board {
 
+    private static final int ONE_UNIT_DISTANCE = 1;
+
+    private static final int TWO_UNITS_DISTANCE = 2;
+
+    private static final int MAX_LIMIT = Coordinate.getDimension() - 2;
+
+    private static final int MIN_LIMIT = 1;
+
     private Piece[][] pieces;
 
     Board() {
@@ -68,6 +76,34 @@ class Board {
         return this.getPiece(coordinate) == null;
     }
 
+    List<Coordinate> getRemovablePiecesWithEnemies(Color color, List<Coordinate> coordinates) {
+        List<Coordinate> removablePiecesWithEnemies = new ArrayList<>();
+        for (Coordinate coordinate : coordinates)
+            this.addRemovablePiecesWithEnemies(removablePiecesWithEnemies, color, coordinate);
+        return removablePiecesWithEnemies;
+    }
+
+    private void addRemovablePiecesWithEnemies(List<Coordinate> removablePiecesWithEnemies, Color color, Coordinate coordinate) {
+        if (color.equals(Color.WHITE) && coordinate.getRow() > MIN_LIMIT) {
+            if (coordinate.getColumn() < MAX_LIMIT && checkEnemyExistence(coordinate, Direction.SE))
+                removablePiecesWithEnemies.add(coordinate);
+            if (coordinate.getColumn() > MIN_LIMIT && checkEnemyExistence(coordinate, Direction.SW))
+                removablePiecesWithEnemies.add(coordinate);
+        }
+        if (color.equals(Color.BLACK) && coordinate.getRow() < MAX_LIMIT) {
+            if (coordinate.getColumn() > MIN_LIMIT && checkEnemyExistence(coordinate, Direction.NW))
+                removablePiecesWithEnemies.add(coordinate);
+            if (coordinate.getColumn() < MAX_LIMIT && checkEnemyExistence(coordinate, Direction.NE))
+                removablePiecesWithEnemies.add(coordinate);
+        }
+    }
+
+    private boolean checkEnemyExistence(Coordinate coordinate, Direction direction) {
+        return this.getPiece(coordinate.getDiagonalCoordinate(direction, ONE_UNIT_DISTANCE)) != null
+            && !this.getColor(coordinate.getDiagonalCoordinate(direction, ONE_UNIT_DISTANCE)).equals(this.getColor(coordinate))
+            && this.getPiece(coordinate.getDiagonalCoordinate(direction, TWO_UNITS_DISTANCE)) == null;
+    }
+
     @Override
     public String toString() {
         String string = "";
@@ -115,9 +151,6 @@ class Board {
         if (getClass() != obj.getClass())
             return false;
         Board other = (Board) obj;
-        if (!Arrays.deepEquals(pieces, other.pieces))
-            return false;
-        return true;
+        return Arrays.deepEquals(pieces, other.pieces);
     }
-
 }
