@@ -31,7 +31,7 @@ public class Coordinate {
         }
     }
 
-    public static int getDimension() {
+    static int getDimension() {
         return Coordinate.DIMENSION;
     }
 
@@ -40,7 +40,7 @@ public class Coordinate {
             && column <= Coordinate.UPPER_LIMIT;
     }
 
-    private Coordinate substract(Coordinate coordinate) {
+    private Coordinate subtract(Coordinate coordinate) {
         return new Coordinate(this.row - coordinate.row, this.column - coordinate.column);
     }
 
@@ -50,7 +50,7 @@ public class Coordinate {
 
     Direction getDirection(Coordinate coordinate) {
         assert coordinate != null;
-        Coordinate substract = coordinate.substract(this);
+        Coordinate substract = coordinate.subtract(this);
         for (Direction direction : Direction.values())
             if (direction.isOnDirection(substract))
                 return direction;
@@ -63,7 +63,7 @@ public class Coordinate {
 
     int getDiagonalDistance(Coordinate coordinate) {
         assert this.isOnDiagonal(coordinate);
-        return Math.abs(this.substract(coordinate).getRow());
+        return Math.abs(this.subtract(coordinate).getRow());
     }
 
     Coordinate getBetweenDiagonalCoordinate(Coordinate coordinate) {
@@ -74,7 +74,7 @@ public class Coordinate {
 
     List<Coordinate> getBetweenDiagonalCoordinates(Coordinate coordinate) {
         assert this.isOnDiagonal(coordinate);
-        List<Coordinate> coordinates = new ArrayList<Coordinate>();
+        List<Coordinate> coordinates = new ArrayList<>();
         final Direction direction = this.getDirection(coordinate);
         Coordinate cursor = this.plus(direction.getDistanceCoordinate(1));
         while (!cursor.equals(coordinate)) {
@@ -85,10 +85,10 @@ public class Coordinate {
     }
 
     List<Coordinate> getDiagonalCoordinates(int level) {
-        List<Coordinate> diagonalCoordinates = new ArrayList<Coordinate>();
+        List<Coordinate> diagonalCoordinates = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             Coordinate diagonalCoordinate = this.plus(direction.getDistanceCoordinate(level));
-            if (diagonalCoordinate != null && diagonalCoordinate.isWithIn())
+            if (diagonalCoordinate.isWithIn())
                 diagonalCoordinates.add(diagonalCoordinate);
         }
         return diagonalCoordinates;
@@ -98,11 +98,11 @@ public class Coordinate {
         return (this.row + this.column) % 2 != 0;
     }
 
-    public boolean isLast() {
+    boolean isLast() {
         return this.row == Coordinate.UPPER_LIMIT;
     }
 
-    public boolean isFirst() {
+    boolean isFirst() {
         return this.row == Coordinate.LOWER_LIMIT;
     }
 
